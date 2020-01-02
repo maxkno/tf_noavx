@@ -1,0 +1,48 @@
+Bootstrap: docker
+From: nvidia/cuda:10.1-cudnn7-devel-ubuntu18.04
+
+%environment
+    # use bash as default shell
+    SHELL=/bin/bash
+    export SHELL
+
+%labels
+    Maintainer Max Knobbe
+    Version 0.1
+
+%post
+
+    # build essentials usw
+    apt-get update && apt-get install -y \
+        build-essential \
+        libssl-dev \
+	uuid-dev \
+	libgpgme11-dev \
+	squashfs-tools \
+	libseccomp-dev \
+	wget \
+	pkg-config \
+	git \
+	cryptsetup
+
+    # starting with the tf stuff
+    apt-get install -y python3 \
+    	    	       python3-dev \
+		       python3-pip
+
+    # pip dependencies
+    python3 -m pip install -U pip six numpy wheel setuptools mock
+    python3 -m pip install -U keras_applications --no-deps
+    python3 -m pip install -U keras_preprocessing --no-deps
+
+    # install bazel 0.24.1
+    apt-get install -y pkg-config zip g++ zlib1g-dev unzip python
+    wget https://github.com/bazelbuild/bazel/releases/download/0.24.1/bazel-0.24.1-installer-linux-x86_64.sh
+    chmod +x bazel-0.24.1-installer-linux-x86_64.sh
+    ./bazel-0.24.1-installer-linux-x86_64.sh
+
+%runscript
+    /bin/bash
+
+%test
+    # tests
